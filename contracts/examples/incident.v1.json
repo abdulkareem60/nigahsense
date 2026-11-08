@@ -1,0 +1,26 @@
+{
+  "id": "inc_5d0b6f3a9c1e47b2a8d4e6f1",
+  "event_type": "restricted_zone_entry",
+  "camera_id": "cam-stockroom-01",
+  "zone_id": "zone-high-bay",
+  "track_id": 12,
+  "status": "acknowledged",
+  "review_outcome": "unreviewed",
+  "detection_score": 0.91,
+  "occurred_at": "2026-11-07T09:31:40.120000Z",
+  "last_event_at": "2026-11-07T09:31:46.480000Z",
+  "event_count": 3,
+  "first_event_id": "0f4c2b7e-6a1d-4d3a-9a8e-3b2f1c9d7e55",
+  "evidence": [
+    {
+      "kind": "snapshot",
+      "uri": "evidence/cam-stockroom-01/2026-11-07/0f4c2b7e-6a1d-4d3a-9a8e-3b2f1c9d7e55.jpg",
+      "captured_at": "2026-11-07T09:31:40.120000Z"
+    }
+  ],
+  "created_at": "2026-11-07T09:31:40.402000Z",
+  "updated_at": "2026-11-07T09:33:02.010000Z",
+  "acknowledged_at": "2026-11-07T09:33:02.010000Z",
+  "acknowledged_by": "Xq3kYb7uVn2demoUid",
+  "acknowledgement_note": "Checking with the stockroom supervisor."
+}

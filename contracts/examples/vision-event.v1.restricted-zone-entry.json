@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "event_id": "0f4c2b7e-6a1d-4d3a-9a8e-3b2f1c9d7e55",
+  "idempotency_key": "cam-stockroom-01:zone-high-bay:s20261107a:12:restricted_zone_entry",
+  "event_type": "restricted_zone_entry",
+  "camera_id": "cam-stockroom-01",
+  "zone_id": "zone-high-bay",
+  "track_id": 12,
+  "occurred_at": "2026-11-07T14:31:40.120+05:00",
+  "detection_score": 0.88,
+  "evidence": {
+    "kind": "snapshot",
+    "uri": "evidence/cam-stockroom-01/2026-11-07/0f4c2b7e-6a1d-4d3a-9a8e-3b2f1c9d7e55.jpg",
+    "captured_at": "2026-11-07T14:31:40.120+05:00"
+  }
+}
