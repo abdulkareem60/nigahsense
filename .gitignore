@@ -1,0 +1,35 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*service-account*.json
+*serviceAccount*.json
+*-firebase-adminsdk-*.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Firebase emulator
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.emulator-data/
+
+# Media, footage and model weights never go in Git
+*.mp4
+*.avi
+*.mkv
+*.pt
+*.onnx
+evidence/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

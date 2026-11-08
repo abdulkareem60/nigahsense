@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/abdulkareem60/nigahsense/contracts/vision-event.v1.schema.json",
+  "title": "NigahSense vision event v1",
+  "description": "One structured detection event sent by the vision worker to POST /v1/events. Contains metadata and an optional evidence reference only, never image or video bytes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "event_id",
+    "idempotency_key",
+    "event_type",
+    "camera_id",
+    "zone_id",
+    "track_id",
+    "occurred_at",
+    "detection_score"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "description": "Contract version. Breaking changes publish a new file (v2) instead of editing this one."
+    },
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique ID for this message, generated once by the worker. A retry of the same message must reuse the same event_id."
+    },
+    "idempotency_key": {
+      "type": "string",
+      "minLength": 8,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z0-9:._-]+$",
+      "description": "Stable key for one real-world occurrence. Every event with the same key is merged into the same incident. Recommended form: <camera_id>:<zone_id>:<session_id>:<track_id>:<event_type>."
+    },
+    "event_type": {
+      "type": "string",
+      "enum": ["restricted_zone_entry"],
+      "description": "v1 supports restricted-zone entry only. Other types are added in later versions."
+    },
+    "camera_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+      "description": "Configured camera identifier, lowercase."
+    },
+    "zone_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$",
+      "description": "Configured zone identifier on that camera, lowercase."
+    },
+    "track_id": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Temporary tracker ID. Valid only within one camera and one worker session; never a person's identity."
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 timestamp of the frame that triggered the event, with a UTC offset (e.g. Z or +05:00)."
+    },
+    "detection_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Detector confidence for this person box (0-1). A model score, not a measure of system accuracy."
+    },
+    "evidence": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["kind", "uri"],
+      "description": "Optional pointer to a snapshot or clip already uploaded to media storage.",
+      "properties": {
+        "kind": { "type": "string", "enum": ["snapshot", "clip"] },
+        "uri": {
+          "type": "string",
+          "maxLength": 1024,
+          "pattern": "^(gs://|s3://|https://|evidence/)[^\\s]+$",
+          "description": "Storage reference: gs://, s3://, https:// or a relative evidence/ path. data: URIs and raw bytes are rejected."
+        },
+        "captured_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

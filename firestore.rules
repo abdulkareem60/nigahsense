@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// Browsers never read or write Firestore directly. All access goes through the
+// FastAPI backend, which uses server credentials and enforces roles itself.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
