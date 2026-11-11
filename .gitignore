@@ -33,3 +33,9 @@ evidence/
 Thumbs.db
 .vscode/
 .idea/
+
+# Vision worker: model weights, sample videos and run output stay local
+worker/models/
+worker/samples/
+worker/runtime/
+worker/config/worker.toml

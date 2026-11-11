@@ -6,6 +6,7 @@
 |---|---|
 | [`contracts/`](contracts/) | Shared event and incident contracts (worker ↔ API ↔ frontend) |
 | [`backend/`](backend/) | FastAPI incident API (Python 3.14) |
+| [`worker/`](worker/) | Vision worker: video → person tracking → restricted-zone events → API. Setup and the full local flow are in [`worker/README.md`](worker/README.md) |
 | `firebase.json`, `firestore.rules`, `firestore.indexes.json` | Firebase Emulator Suite and Firestore configuration |
 
 ## Backend: first milestone API

@@ -1,0 +1,8 @@
+# Light install for the tests and CI: no PyTorch or Ultralytics (tests use a scripted tracker).
+opencv-python-headless==5.0.0.93
+numpy==2.5.4
+httpx==0.28.1
+pydantic==2.14.3
+pydantic-settings==2.16.2
+pytest==9.2.0
+jsonschema==4.26.0

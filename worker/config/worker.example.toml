@@ -1,0 +1,52 @@
+# NigahSense vision worker - example configuration (safe to commit: no secrets).
+# Copy to config/worker.toml for your own changes. Secrets (API key, RTSP URL) go in worker/.env.
+# Relative paths are relative to the folder you run the worker from (worker/).
+
+[camera]
+id = "cam-demo-plaza"            # lowercase letters, digits, - or _ (max 64). Must match the camera ID agreed with the API/frontend.
+name = "Demo plaza (OpenCV sample video)"
+
+[source]
+type = "file"                    # "file" (recorded video), "webcam" (local camera) or "rtsp" (network camera)
+path = "samples/vtest.avi"       # file: video to read. Download instructions: worker/README.md
+realtime = true                  # file: play at the video's own speed, like a live camera
+loop = false                     # file: start again at the end
+device_index = 0                 # webcam: 0 = first camera
+url_env = "NIGAHSENSE_RTSP_URL"  # rtsp: name of the environment variable that holds the URL (it often contains a password)
+reconnect_initial_seconds = 1.0  # webcam/rtsp: first wait before reconnecting; doubles each failure
+reconnect_max_seconds = 30.0     # ... up to this
+max_reconnect_attempts = 0       # 0 = keep trying until stopped
+max_consecutive_read_failures = 25
+
+[detector]
+model = "models/yolo26n.pt"      # downloaded automatically on first run; never committed
+device = "cpu"                   # "cpu", "0" = first NVIDIA GPU, or "auto"
+confidence = 0.35                # minimum box confidence the detector keeps
+iou = 0.5
+image_size = 640
+tracker = "bytetrack.yaml"       # or "botsort.yaml" (Ultralytics built-in trackers)
+frame_stride = 1                 # 2 = process every second frame (faster on slow CPUs)
+
+# One or more restricted zones for this camera.
+# points = polygon corners as [x, y], NORMALISED to the frame:
+#   x: 0.0 = left edge, 1.0 = right edge;  y: 0.0 = top edge, 1.0 = bottom edge.
+# Same zone works at any resolution. At least 3 points, listed in order around the shape (either direction).
+# A person is "in" the zone when the bottom-centre of their box (their feet) is inside the polygon.
+[[zones]]
+id = "zone-south-lawn"
+name = "Restricted: south lawn (keep off)"
+points = [[0.00, 0.50], [0.42, 0.63], [0.56, 1.00], [0.00, 1.00]]
+
+[rule]
+min_score = 0.40                 # ignore boxes below this confidence for zone entry
+confirm_frames = 3               # frames the feet must be inside before it counts as an entry
+exit_frames = 5                  # frames outside before the person counts as having left
+track_gap_seconds = 5.0          # forget a track not seen for this long
+reentry_cooldown_seconds = 30.0  # same person re-entering sooner than this does not alert again
+anchor = "bottom_center"         # "bottom_center" (feet) or "center"
+
+[output]
+event_log = "runtime/events.jsonl"   # local log of emitted events and API replies
+outbox = "runtime/outbox.jsonl"      # events not yet delivered (re-sent on next start)
+# annotated_video = "runtime/annotated.mp4"
+show_window = false
