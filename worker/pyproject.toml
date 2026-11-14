@@ -1,0 +1,10 @@
+[project]
+name = "nigahsense-worker"
+version = "0.1.0"
+description = "NigahSense vision worker (video source, person tracking, restricted-zone events)"
+requires-python = ">=3.14,<3.15"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

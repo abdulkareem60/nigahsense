@@ -1,0 +1,13 @@
+# Vision worker runtime (Python 3.14). Versions checked for compatibility on 2026-11-11.
+# CPU-only PyTorch is installed first from the PyTorch index (see README); with an NVIDIA GPU, install the
+# matching CUDA build of torch 2.15.0 instead.
+torch==2.15.0
+torchvision==0.29.2
+ultralytics==8.4.210
+# Ultralytics requires the GUI OpenCV build; using the same build avoids two OpenCV packages overwriting each other.
+opencv-python==5.0.0.93
+numpy==2.5.4
+lap==0.5.14
+httpx==0.28.1
+pydantic==2.14.3
+pydantic-settings==2.16.2
