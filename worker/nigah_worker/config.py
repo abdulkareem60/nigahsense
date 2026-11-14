@@ -50,12 +50,12 @@ class SourceConfig(_Strict):
 
 
 class DetectorConfig(_Strict):
-    model: str = "models/yolo26n.pt"
+    model: str = "models/yolo26s.pt"
     device: str = "cpu"  # "cpu", "0" for the first CUDA GPU, or "auto"
     confidence: Unit = 0.35
     iou: Unit = 0.5
     image_size: int = Field(default=640, ge=160, le=1920)
-    tracker: str = "bytetrack.yaml"  # or "botsort.yaml"
+    tracker: str = "config/trackers/bytetrack-nigah.yaml"  # ByteTrack, fuse_score off (see that file)
     frame_stride: int = Field(default=1, ge=1, description="Process every Nth frame")
 
 

@@ -1,0 +1,375 @@
+{
+ "video": "samples/PETS09-S2L2-raw.webm",
+ "source": "PETS 2009 S2.L2 view 1 via MOTChallenge, https://motchallenge.net/sequenceVideos/PETS09-S2L2-raw.webm (CC BY-NC-SA 3.0, non-commercial research use)",
+ "zone_config": "config/worker.example.toml",
+ "how_made": "Each person followed through detector boxes from a manually chosen seed and checked by eye on rendered frames. 'Entered' = feet at least 12 px inside the polygon for at least 3 consecutive frames; shallower = ambiguous (alerts for that person are neither counted correct nor extra).",
+ "frame_tolerance": 15,
+ "match_distance_px": 60,
+ "people": [
+  {
+   "id": "D1",
+   "description": "dark coat and jeans; appears at the left frame edge already inside the zone",
+   "zone_id": "zone-south-lawn",
+   "enters_zone": true,
+   "enter_frame": 32,
+   "keyframes": [
+    [
+     32,
+     10,
+     383
+    ],
+    [
+     36,
+     31,
+     379
+    ],
+    [
+     40,
+     75,
+     367
+    ],
+    [
+     44,
+     118,
+     361
+    ],
+    [
+     48,
+     146,
+     355
+    ],
+    [
+     52,
+     165,
+     346
+    ],
+    [
+     56,
+     184,
+     337
+    ],
+    [
+     60,
+     209,
+     328
+    ]
+   ]
+  },
+  {
+   "id": "G",
+   "description": "grey hoodie with backpack; walks down from the path deep into the lawn next to D1, leaves over the right edge",
+   "zone_id": "zone-south-lawn",
+   "enters_zone": true,
+   "enter_frame": 40,
+   "keyframes": [
+    [
+     20,
+     19,
+     292
+    ],
+    [
+     24,
+     26,
+     299
+    ],
+    [
+     28,
+     39,
+     304
+    ],
+    [
+     34,
+     72,
+     309
+    ],
+    [
+     38,
+     78,
+     317
+    ],
+    [
+     44,
+     87,
+     333
+    ],
+    [
+     48,
+     92,
+     346
+    ],
+    [
+     52,
+     105,
+     353
+    ],
+    [
+     56,
+     117,
+     365
+    ],
+    [
+     60,
+     136,
+     375
+    ],
+    [
+     64,
+     153,
+     389
+    ],
+    [
+     68,
+     176,
+     398
+    ],
+    [
+     72,
+     195,
+     412
+    ],
+    [
+     76,
+     211,
+     414
+    ],
+    [
+     80,
+     232,
+     425
+    ],
+    [
+     84,
+     253,
+     441
+    ],
+    [
+     88,
+     279,
+     455
+    ],
+    [
+     92,
+     302,
+     472
+    ],
+    [
+     96,
+     316,
+     472
+    ],
+    [
+     100,
+     346,
+     486
+    ],
+    [
+     104,
+     371,
+     506
+    ],
+    [
+     108,
+     418,
+     514
+    ]
+   ]
+  },
+  {
+   "id": "R1",
+   "description": "red jacket, long dark hair; cuts across the top-right corner of the zone (max ~20 px inside)",
+   "zone_id": "zone-south-lawn",
+   "enters_zone": true,
+   "enter_frame": 72,
+   "keyframes": [
+    [
+     58,
+     230,
+     341
+    ],
+    [
+     62,
+     245,
+     348
+    ],
+    [
+     66,
+     261,
+     356
+    ],
+    [
+     70,
+     272,
+     361
+    ],
+    [
+     74,
+     288,
+     373
+    ],
+    [
+     78,
+     308,
+     380
+    ],
+    [
+     82,
+     331,
+     392
+    ],
+    [
+     86,
+     350,
+     399
+    ],
+    [
+     90,
+     372,
+     410
+    ],
+    [
+     94,
+     394,
+     424
+    ],
+    [
+     98,
+     417,
+     433
+    ]
+   ]
+  },
+  {
+   "id": "K",
+   "description": "man in black walking along the top-left edge; feet at most ~12 px inside",
+   "zone_id": "zone-south-lawn",
+   "enters_zone": "ambiguous",
+   "enter_frame": 132,
+   "keyframes": [
+    [
+     120,
+     133,
+     303
+    ],
+    [
+     124,
+     113,
+     308
+    ],
+    [
+     128,
+     94,
+     316
+    ],
+    [
+     132,
+     80,
+     316
+    ],
+    [
+     136,
+     71,
+     316
+    ],
+    [
+     140,
+     78,
+     317
+    ],
+    [
+     144,
+     93,
+     312
+    ],
+    [
+     148,
+     105,
+     302
+    ],
+    [
+     152,
+     109,
+     293
+    ],
+    [
+     156,
+     112,
+     284
+    ]
+   ]
+  },
+  {
+   "id": "R2",
+   "description": "red jacket, walks from the path onto the lawn and out of view on the left",
+   "zone_id": "zone-south-lawn",
+   "enters_zone": true,
+   "enter_frame": 351,
+   "keyframes": [
+    [
+     336,
+     381,
+     354
+    ],
+    [
+     340,
+     344,
+     353
+    ],
+    [
+     344,
+     307,
+     356
+    ],
+    [
+     348,
+     276,
+     358
+    ],
+    [
+     352,
+     236,
+     363
+    ],
+    [
+     356,
+     218,
+     366
+    ],
+    [
+     360,
+     177,
+     367
+    ],
+    [
+     364,
+     143,
+     370
+    ],
+    [
+     368,
+     107,
+     369
+    ],
+    [
+     372,
+     69,
+     363
+    ],
+    [
+     376,
+     42,
+     362
+    ],
+    [
+     380,
+     25,
+     356
+    ],
+    [
+     384,
+     6,
+     349
+    ]
+   ]
+  }
+ ]
+}

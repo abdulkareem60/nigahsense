@@ -19,13 +19,13 @@ max_reconnect_attempts = 0       # 0 = keep trying until stopped
 max_consecutive_read_failures = 25
 
 [detector]
-model = "models/yolo26n.pt"      # downloaded automatically on first run; never committed
+model = "models/yolo26s.pt"      # downloaded automatically on first run; never committed. yolo26n.pt is ~2.4x faster but missed half-hidden people (see README)
 device = "cpu"                   # "cpu", "0" = first NVIDIA GPU, or "auto"
 confidence = 0.35                # minimum box confidence the detector keeps
 iou = 0.5
 image_size = 640
-tracker = "bytetrack.yaml"       # or "botsort.yaml" (Ultralytics built-in trackers)
-frame_stride = 1                 # 2 = process every second frame (faster on slow CPUs)
+tracker = "config/trackers/bytetrack-nigah.yaml"  # ByteTrack with fuse_score off; reason in that file
+frame_stride = 1                 # keep 1: skipping frames caused ID switches and duplicate alerts in the evaluation
 
 # One or more restricted zones for this camera.
 # points = polygon corners as [x, y], NORMALISED to the frame:

@@ -1,0 +1,17 @@
+# NigahSense tracker settings: Ultralytics ByteTrack (8.4.x defaults) with one change.
+#
+# fuse_score: False (default True)
+#   With True, ByteTrack multiplies box overlap (IoU) by the detection score when matching. A person
+#   reappearing half-hidden behind someone gets a short box with a modest score, so overlap x score fell
+#   below the match threshold and the tracker started a NEW ID -> the zone rule sent a duplicate alert.
+#   Measured with worker/nigah_worker/evaluation.py on vtest.avi and PETS09-S2L2 (2026-11-14):
+#     yolo26s @512 px: 1 duplicate alert with True, 0 with False; no other change on either clip.
+#   Re-run the evaluation before changing any value here (see worker/README.md, "Evaluate accuracy").
+
+tracker_type: bytetrack
+track_high_thresh: 0.25 # first-stage match threshold
+track_low_thresh: 0.1 # second-stage threshold for low-score boxes
+new_track_thresh: 0.25 # start a new track if no match >= this
+track_buffer: 30 # frames a lost track is kept
+match_thresh: 0.8 # association cost threshold
+fuse_score: False # see note above

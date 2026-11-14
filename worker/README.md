@@ -29,7 +29,7 @@ New-Item -ItemType Directory -Force samples
 curl.exe -L -o samples/vtest.avi https://raw.githubusercontent.com/opencv/opencv/4.x/samples/data/vtest.avi
 ```
 
-**Model weights** (`models/yolo26n.pt`, 5.5 MB) download automatically on the first run. They are never committed.
+**Model weights** (`models/yolo26s.pt`, 20 MB) download automatically on the first run. They are never committed.
 
 ## Run the full flow locally
 
@@ -48,7 +48,7 @@ You need three terminals. Each command block below says which folder to run it f
    .venv\Scripts\python -m nigah_worker --config config/worker.example.toml --annotated runtime/annotated.mp4
    ```
 
-On the sample video this sends 3 events, at about 53 s and 57 s into the clip. Each one prints `API 201 ... "outcome": "created"`. Open the emulator UI at http://127.0.0.1:4000/firestore to see the `incidents` documents.
+On the sample video this sends 2 events, one per person, at about 53 s into the clip. Each one prints `API 201 ... "outcome": "created"`. Open the emulator UI at http://127.0.0.1:4000/firestore to see the `incidents` documents.
 
 ### Useful options
 
@@ -102,7 +102,54 @@ points = [[0.00, 0.50], [0.42, 0.63], [0.56, 1.00], [0.00, 1.00]]
 
 A person standing in the zone produces **one** event, not one per frame.
 
-**Known limit:** if the tracker gives the same person a new track ID, a second event is possible. On the sample video, 2 people walking together on the lawn produce 3 events because one person's ID switched while they overlapped (track 49 → 55). Better tracking is the fix (see Hania's next steps).
+**Known limit:** the rule cannot tell that a *new* track ID is the same person. If the tracker loses someone and gives them a new ID, a second event follows. That is what caused a duplicate alert on the sample video before the detector/tracker change below. Tracking quality, not the rule, is where this is fixed.
+
+## Evaluate accuracy (no API or Firestore needed)
+
+`nigah_worker/evaluation.py` runs detection once, caches every person box, then replays the cache through any tracker setting plus the real zone rule and scores the result against a hand-checked ground-truth file. Run it from `worker/`:
+
+```powershell
+# 1. Detector pass, once per video/model/size (a few minutes on CPU). Cache goes to runtime/eval/
+.venv\Scripts\python -m nigah_worker.evaluation detect --video samples/vtest.avi --model models/yolo26s.pt
+
+# 2. Tracker + zone rule + score (seconds). Add --dump file.jsonl for per-frame tracks, feet, zone decisions and alerts
+.venv\Scripts\python -m nigah_worker.evaluation run --video samples/vtest.avi --model models/yolo26s.pt `
+    --tracker config/trackers/bytetrack-nigah.yaml --truth eval/ground_truth/vtest.json
+```
+
+Options: `--set key=value` overrides one tracker setting, `--det-conf` sets the detector threshold passed to the tracker, `--stride N` processes every Nth frame, `--imgsz` sets the detector input size, and `--live` runs the model per frame (needed for ReID trackers).
+
+**Output.**
+- `correct`, `missed`: entries found and not found.
+- `duplicates`: extra alerts for a person already alerted.
+- `false_alerts`: alerts for nobody, or for someone who never entered.
+- `id_switches`: track ID changes along each person's path.
+- `ignored_ambiguous`: alerts for people marked ambiguous, which are not scored.
+
+**Ground truth** (`eval/ground_truth/*.json`): one entry per person, with `enters_zone` (`true`, `false` or `"ambiguous"`), `enter_frame`, and `keyframes` as `[frame, feet_x, feet_y]` in pixels. A person counts as entered when their feet are at least 12 px inside the polygon for at least 3 frames; shallower is ambiguous. Positions come from detector boxes that were checked by eye, and frames where identity is unclear (people overlapping, half out of frame) are left out. Both files say how they were made.
+
+**Second test clip** (dense crowd, same camera; CC BY-NC-SA 3.0, non-commercial research use):
+```powershell
+curl.exe -L -o samples/PETS09-S2L2-raw.webm https://motchallenge.net/sequenceVideos/PETS09-S2L2-raw.webm
+```
+
+### Measured results (2026-11-14, south-lawn zone, CPU)
+
+| Setup | vtest.avi (2 true entries) | PETS09-S2L2 (4 true + 1 ambiguous) | Worker speed |
+|---|---|---|---|
+| Before: `yolo26n` + stock ByteTrack | 2 correct, **1 duplicate**, 2 ID switches | 4 correct, 0 extra, 0 switches | 7.9 fps |
+| **Now: `yolo26s` + `bytetrack-nigah.yaml`** | **2 correct, 0 duplicates, 0 ID switches** | 4 correct, 0 extra, 0 switches | 2.9–3.3 fps |
+
+What was tried and did **not** remove the duplicate:
+- `yolo26n` with ByteTrack at detector confidence 0.10–0.35, `track_buffer` 60 or 90, `match_thresh` 0.9, or `fuse_score` off;
+- BoT-SORT (with and without ReID), OC-SORT, FastTracker and TrackTrack;
+- `yolo26n` at 960 px.
+
+`yolo26s` with stock ByteTrack fixed 640 px and 480 px but **not 512 px**. Adding `fuse_score: False` fixed all three sizes. Processing every second frame (`frame_stride = 2`) brought duplicates back with both models.
+
+**Limits of this evidence.** It rests on 2 short clips from one camera and one occlusion that caused the failure, with 6 people scored in total. It shows that this failure is fixed and nothing broke on the second clip. It does **not** prove general accuracy.
+
+**Speed.** On this laptop's CPU, `yolo26s` runs at about 3 fps, slower than a 7–10 fps camera. With a live camera the worker would fall behind and effectively skip frames, which the evaluation shows causes ID switches. For live use, run on a GPU or a faster CPU, or test `--imgsz 480` (about 5.5 fps, still correct on both clips) before relying on it.
 
 ## Event fields
 
@@ -121,7 +168,16 @@ A person standing in the zone produces **one** event, not one per frame.
 .venv\Scripts\python -m pytest
 ```
 
-The tests cover polygon geometry, the alert rule (no repeat alerts, gaps, cooldown), payloads checked against both the contract schema and the API's own model, publisher retries and outbox, video file errors, and a full pipeline run with a scripted tracker. They need no model, so CI installs only `requirements-test.txt`.
+The tests cover:
+- polygon geometry;
+- the alert rule (no repeat alerts, gaps, cooldown);
+- payloads, checked against both the contract schema and the API's own model;
+- publisher retries and the outbox;
+- video file errors;
+- a full pipeline run with a scripted tracker;
+- the evaluation scoring.
+
+`tests/test_tracking_regression.py` replays the **real detector output** around the sample-video occlusion (`tests/fixtures/vtest_occlusion_detections.json`, numbers only, no video) through the real tracker and zone rule. It checks three things: the fixed setup sends one alert per person, the old setup still reproduces the duplicate (so the fixture keeps proving something), and neither change works alone. These tests need Ultralytics and PyTorch; they are skipped with the light `requirements-test.txt` install. CI runs both installs.
 
 ## Ownership: what Hania can take over next
 
@@ -143,11 +199,11 @@ class TrackedPerson:
 |---|---|
 | `nigah_worker/detection.py`: model, thresholds, tracker, a better `PersonTracker` | `nigah_worker/sources.py`, `publisher.py`, `events.py`, `pipeline.py`, `__main__.py` |
 | `nigah_worker/rules.py` and `zones.py`: rule tuning and new rule logic | `contracts/` (event fields) and the API |
-| `[detector]` and `[rule]` defaults in `config/worker.example.toml` | `[camera]`, `[source]`, `[output]` |
-| New tests in `tests/test_rules.py`, plus an evaluation script (e.g. `worker/eval/`) | |
+| `[detector]` and `[rule]` defaults in `config/worker.example.toml`, and `config/trackers/` | `[camera]`, `[source]`, `[output]` |
+| `nigah_worker/evaluation.py`, `eval/ground_truth/`, `tests/test_tracking_regression.py`, `tests/test_rules.py` | |
 
 Suggested next steps for Hania:
-1. **Fix the ID switch on the sample video.** Try `tracker` settings (a custom ByteTrack YAML with a longer `track_buffer` and a lower `match_thresh`), or BoT-SORT with ReID. A quick BoT-SORT test with default settings still switched IDs and was slower.
-2. **Build a small evaluation set.** Label a few clips with ground truth ("person X entered zone at frame N"), and write a script that reports missed entries, false alerts and ID switches.
-3. **Compare models.** Try `yolo26s.pt` against `yolo26n.pt` for accuracy versus CPU speed. Baseline: about 7 fps for `yolo26n` at 640 px on this development laptop's CPU.
-4. Tune `confirm_frames` and `min_score` using that evaluation, not by eye.
+1. **Review the detector and tracker change** (`yolo26s` + `config/trackers/bytetrack-nigah.yaml`) and the ground-truth files. Re-run the two evaluation commands above and check that you get the same numbers.
+2. **Grow the evaluation set.** This matters most. Add clips with more occlusions, other cameras and other zones (for example the dense east walkway in vtest), using the same JSON format. Until then, accuracy beyond these two clips is unproven.
+3. **Fix the speed for live cameras without losing accuracy.** Measure `yolo26s` at 480 px on more clips, try an OpenVINO or ONNX export for CPU, or use a GPU. Keep `frame_stride = 1` unless the evaluation shows otherwise.
+4. Tune `confirm_frames`, `min_score` and the tracker using the evaluation, not by eye. Change one thing at a time and keep the regression tests passing.
